@@ -10,6 +10,8 @@ import java.util.Scanner;
  *
  * @author Eetu Kallio
  * @version 1.0
+ *
+ * The main class
  */
 
 public class ShoppingListMain {
