@@ -1,0 +1,10 @@
+SHOPPING LIST
+Tampere University of Applied Sciences
+
+Give shopping list (example: 1 milk;2 tomato;3 carrot;)
+Your Shopping List Now:
+3 carrot
+2 tomato
+1 milk
+
+Give shopping list (example: 1 milk;2 tomato;3 carrot;)
