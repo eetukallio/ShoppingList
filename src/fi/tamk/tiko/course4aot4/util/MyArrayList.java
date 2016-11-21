@@ -3,8 +3,11 @@ package fi.tamk.tiko.course4aot4.util;
 /**
  * A basic array list
  * @author Eetu Kallio
+ * @version 1.0
+ * @since 1.0
  * @param <T> Generic class
  */
+
 public class MyArrayList<T> implements MyList<T> {
 
     private T[] array;
@@ -12,23 +15,24 @@ public class MyArrayList<T> implements MyList<T> {
     private int currentAmount;
 
     /**
-     * Default constructor
+     * Default constructor.
      */
+
     @SuppressWarnings("unchecked")
-    public MyArrayList(){
+    public MyArrayList() {
 
         array = (T[])new Object[2];
         currentMax = 2;
         currentAmount = 0;
-
     }
 
     /**
      * @see MyList#add(T) equals
      */
+
     @Override
     public void add(T e) {
-        if (currentAmount == currentMax){
+        if (currentAmount == currentMax) {
             extendArray();
         }
 
@@ -39,22 +43,23 @@ public class MyArrayList<T> implements MyList<T> {
     /**
      * @see MyList#clear() equals
      */
+
     @SuppressWarnings("unchecked")
     @Override
     public void clear() {
 
         array = (T[])new Object[2];
         currentMax = 2;
-        currentAmount=0;
-
+        currentAmount = 0;
     }
 
     /**
      * @see MyList#get(int) equals
      */
+
     @Override
     public T get(int index) {
-        if (index>=0 && index<currentAmount){
+        if (index >= 0 && index < currentAmount) {
             return array[index];
         }
         return null;
@@ -63,20 +68,21 @@ public class MyArrayList<T> implements MyList<T> {
     /**
      * @see MyList#isEmpty() equals
      */
+
     @Override
     public boolean isEmpty() {
 
         return currentAmount == 0;
-
     }
 
     /**
      * @see MyList#remove(int) equals
      */
+
     @Override
     public Object remove(int index) {
         Object tmp = null;
-        if (index>=0 && index<currentAmount){
+        if (index >= 0 && index < currentAmount) {
             tmp = array[index];
 
             rearrangeArray(index);
@@ -92,6 +98,7 @@ public class MyArrayList<T> implements MyList<T> {
     /**
      * @see MyList#remove(T) equals
      */
+
     @Override
     public boolean remove(T o) {
 
@@ -109,6 +116,7 @@ public class MyArrayList<T> implements MyList<T> {
     /**
      * @see MyList#size() equals
      */
+
     @Override
     public int size() {
         return currentAmount;
@@ -117,8 +125,9 @@ public class MyArrayList<T> implements MyList<T> {
     /**
      * Extends the array when full
      */
+
     @SuppressWarnings("unchecked")
-    private void extendArray(){
+    private void extendArray() {
 
         currentMax *= 2;
 
@@ -129,21 +138,17 @@ public class MyArrayList<T> implements MyList<T> {
         }
 
         array = temp;
-
-        //System.out.println("List extended. CurrentMax: " + currentMax);
-
     }
 
     /**
      * Rearranges the array when removing elements
      * @param index Index from which the rearranging starts
      */
-    private void rearrangeArray(int index){
+    private void rearrangeArray(int index) {
 
-        for (int i = index+1; i < currentAmount; i++) {
+        for (int i = index + 1; i < currentAmount; i++) {
             array[i-1] = array[i];
         }
-
     }
 
     /**
