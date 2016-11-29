@@ -2,6 +2,7 @@ package fi.tamk.tiko.course4aot4.project;
 
 import fi.tamk.tiko.course4aot4.util.MyArrayList;
 import fi.tamk.tiko.course4aot4.util.MyLinkedList;
+
 import java.util.Scanner;
 
 /**
@@ -23,7 +24,8 @@ public class ShoppingListMain {
         System.out.println("SHOPPING LIST\r\n" +
                 "Tampere University of Applied Sciences\r\n");
 
-        run();
+        ShoppingListWindow window = new ShoppingListWindow();
+        //run();
     }
 
     /**

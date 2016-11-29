@@ -1,7 +1,7 @@
 package fi.tamk.tiko.course4aot4.project;
 
 /**
- * Created by Eetu Kallio on 20.11.2016
+ * A single item in the shopping list.
  *
  * @author Eetu Kallio
  * @version 1.0
