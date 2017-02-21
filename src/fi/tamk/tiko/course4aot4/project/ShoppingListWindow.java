@@ -1,10 +1,13 @@
 package fi.tamk.tiko.course4aot4.project;
 
+import com.dropbox.core.*;
 import fi.tamk.tiko.course4aot4.util.MyLinkedList;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
+import java.io.*;
+import java.util.Locale;
 
 /**
  * Creates a window for the shopping list GUI.
@@ -13,7 +16,7 @@ import java.awt.*;
  * @version 2.0
  * @since 2.0
  */
-public class ShoppingListWindow extends JFrame {
+public class ShoppingListWindow extends JFrame{
 
     /**
      * Visual table of the shopping list.
@@ -39,6 +42,11 @@ public class ShoppingListWindow extends JFrame {
      * Menu item that opens the file.
      */
     private JMenuItem openItem;
+
+    /**
+     * Menu item that saves the file to Dropbox.
+     */
+    private JMenuItem saveToDropboxItem;
 
     /**
      * Button for adding items to the shopping list.
@@ -76,6 +84,16 @@ public class ShoppingListWindow extends JFrame {
     private MyLinkedList<ShoppingListItem> shoppingList;
 
     /**
+     * Dropbox app key.
+     */
+    final String APP_KEY = "zitwkamwtpvgcdb";
+
+    /**
+     * Dropbox app secret.
+     */
+    final String APP_SECRET = "ymdictrhrvoh1ca";
+
+    /**
      * Constructor for the class.
      */
     public ShoppingListWindow() {
@@ -90,6 +108,7 @@ public class ShoppingListWindow extends JFrame {
         menuBar = new JMenuBar();
         fileMenu = new JMenu("File");
         saveItem = new JMenuItem("Save");
+        saveToDropboxItem = new JMenuItem("Save To Dropbox");
         openItem = new JMenuItem("Open");
         addButton = new JButton("Add");
         addNameField = new JTextField();
@@ -108,6 +127,7 @@ public class ShoppingListWindow extends JFrame {
     private void addComponentsToWindow() {
 
         fileMenu.add(saveItem);
+        fileMenu.add(saveToDropboxItem);
         fileMenu.add(openItem);
         menuBar.add(fileMenu);
         setJMenuBar(menuBar);
@@ -151,8 +171,10 @@ public class ShoppingListWindow extends JFrame {
 
                     if (!exists) {
 
-                        shoppingList.add(new ShoppingListItem(itemAmount, itemName));
-                        System.out.println("Added " + itemAmount +" " + itemName);
+                        shoppingList.add(new ShoppingListItem(itemAmount,
+                                itemName));
+                        System.out.println("Added " + itemAmount + " " +
+                                itemName);
                     }
 
                     Object[][] data = new Object[shoppingList.size()][2];
@@ -167,13 +189,129 @@ public class ShoppingListWindow extends JFrame {
                     tModel.setDataVector(data, colNames);
                     listTable.setModel(tModel);
                     tModel.fireTableDataChanged();
-
                 } catch (NumberFormatException ex){
 
                     JOptionPane.showMessageDialog(null,
                             "Amount must be in numbers!", "Error",
                             JOptionPane.ERROR_MESSAGE);
                 }
+            }
+        });
+        saveItem.addActionListener(e -> {
+
+            JFileChooser fc = new JFileChooser();
+            int returnVal = fc.showSaveDialog(ShoppingListWindow.this);
+
+            try{
+                PrintWriter pw =
+                        new PrintWriter(new BufferedWriter(new FileWriter(
+                                fc.getSelectedFile() + ".txt")));
+
+                for (int i = 0; i < shoppingList.size(); i++) {
+                    pw.println(shoppingList.get(i).getItemAmount() + " "
+                            + shoppingList.get(i).getItemName());
+                }
+
+                pw.close();
+            } catch (IOException ioe){
+                ioe.printStackTrace();
+            }
+        });
+        openItem.addActionListener(e -> {
+
+            JFileChooser fc = new JFileChooser();
+            int returnVal = fc.showOpenDialog(ShoppingListWindow.this);
+
+            try (FileInputStream src = new FileInputStream(
+                    fc.getSelectedFile())) {
+
+                StringBuilder builder = new StringBuilder();
+                BufferedReader br =
+                        new BufferedReader
+                                (new InputStreamReader(src,"UTF-8"));
+                int c;
+
+                while ((c = br.read()) != -1) {
+
+                    builder.append((char)c);
+                }
+
+                String[] s = builder.toString().split("\n");
+
+                shoppingList.clear();
+
+                for (int i = 0; i < s.length ; i++) {
+
+                    String[] tmp = s[i].split(" ");
+
+                    if (!s[i].isEmpty()) {
+
+                        shoppingList.add(new ShoppingListItem(
+                                Integer.parseInt(tmp[0]), tmp[1]));
+                    }
+                }
+
+                Object[][] data = new Object[shoppingList.size()][2];
+                String[] colNames = {"Name", "Amount"};
+
+                for (int i = 0; i < shoppingList.size(); i++) {
+
+                    data[i][0] = shoppingList.get(i).getItemName();
+                    data[i][1] = shoppingList.get(i).getItemAmount();
+                }
+
+                tModel.setDataVector(data, colNames);
+                listTable.setModel(tModel);
+                tModel.fireTableDataChanged();
+            } catch (IOException er) {
+                er.printStackTrace();
+            }
+        });
+        saveToDropboxItem.addActionListener(e -> {
+            try {
+
+                DbxAppInfo appInfo = new DbxAppInfo(APP_KEY, APP_SECRET);
+
+                DbxRequestConfig config = new DbxRequestConfig(
+                        "Shopping List - Eetu Kallio",
+                        Locale.getDefault().toString());
+                DbxWebAuthNoRedirect webAuth = new DbxWebAuthNoRedirect(
+                        config, appInfo);
+                String authString = (String)JOptionPane.showInputDialog(null,
+                        "Visit: ", "DropBox Auth",
+                        JOptionPane.INFORMATION_MESSAGE, null, null,
+                        webAuth.start());
+                DbxClient client;
+                DbxAuthFinish authFinish = webAuth.finish(authString);
+                String accessToken = authFinish.accessToken;
+                client = new DbxClient(config, accessToken);
+                File inputFile = new File("shopping-list.txt");
+                PrintWriter pw =
+                        new PrintWriter(new BufferedWriter(new FileWriter(
+                                inputFile)));
+
+                for (int i = 0; i < shoppingList.size(); i++) {
+
+                    pw.println(shoppingList.get(i).getItemAmount() + " "
+                            + shoppingList.get(i).getItemName());
+                }
+
+                FileInputStream inputStream = new FileInputStream(inputFile);
+                pw.close();
+
+                try {
+
+                    DbxEntry.File uploadedFile = client.uploadFile(
+                            "/shopping-list.txt",
+                            DbxWriteMode.add(), inputFile.length(),
+                            inputStream);
+                    System.out.println("Uploaded: " + uploadedFile.toString());
+                    JOptionPane.showMessageDialog(null, "Uploaded");
+                } finally {
+                    inputStream.close();
+                }
+            } catch (IOException | DbxException ioe) {
+                ioe.printStackTrace();
             }
         });
     }

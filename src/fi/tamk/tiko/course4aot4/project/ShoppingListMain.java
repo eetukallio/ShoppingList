@@ -1,8 +1,8 @@
 package fi.tamk.tiko.course4aot4.project;
 
+import com.dropbox.core.DbxException;
 import fi.tamk.tiko.course4aot4.util.MyArrayList;
 import fi.tamk.tiko.course4aot4.util.MyLinkedList;
-
 import java.util.Scanner;
 
 /**
@@ -19,13 +19,13 @@ public class ShoppingListMain {
      *
      * @param args Commandline arguments.
      */
-    public static void main(String[] args) {
+    public static void main(String[] args) throws DbxException {
 
         System.out.println("SHOPPING LIST\r\n" +
                 "Tampere University of Applied Sciences\r\n");
 
         ShoppingListWindow window = new ShoppingListWindow();
-        //run();
+        // run();
     }
 
     /**
